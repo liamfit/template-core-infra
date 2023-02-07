@@ -3,9 +3,6 @@ name: Test workflow
 on:
   workflow_dispatch:
     inputs:
-      AWS_REGION:
-        type: string
-        required: true
       AWS_ROLE:
         type: string
         required: true
@@ -20,28 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - run: aws ssm get-parameter --name terraform.tfvars.json --with-decryption --query 'Parameter.Value' --output text > environments/dev/terraform.tfvars.json
+
+      - name: Run terraform
+        uses: liamfit/workflow-library/.github/workflows/terraform-plan-and-apply.yml@main
         with:
-          role-to-assume: ${{ inputs.AWS_ROLE }}
-          role-session-name: ${{ github.run_id }}
-          aws-region: "eu-west-1"
-
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 'stable'
-
-      - run: go install github.com/mineiros-io/terramate/cmd/terramate@latest
-          
-      - run: terramate list --changed
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "1.3.6"
-
-      - run: |
-          cd environments/dev
-          aws ssm get-parameter --name terraform.tfvars.json --with-decryption --query 'Parameter.Value' --output text > terraform.tfvars.json
-          terraform plan
-
+          environment: dev
+          terraform-version: 1.3.6
+          working-directory: environments/dev
+        secrets: inherit
