@@ -1,0 +1,29 @@
+name: Test workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      AWS_REGION:
+        type: string
+        required: true
+      AWS_ROLE:
+        type: string
+        required: true
+      AWS_ROLE_DEV:
+        type: string
+        required: true
+
+jobs:
+  test-multi-account:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ inputs.AWS_ROLE }}
+          role-session-name: ${{ github.run_id }}
+          aws-region: ${{ inputs.AWS_REGION }}
+
+      - run: aws sts get-caller-identity
+
+      - run: aws sts assume-role --role-arn ${{ inputs.AWS_ROLE_DEV }} --role-session-name test
