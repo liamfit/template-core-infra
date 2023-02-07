@@ -25,12 +25,11 @@ jobs:
         with:
           role-to-assume: ${{ inputs.AWS_ROLE }}
           role-session-name: ${{ github.run_id }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: "eu-west-1"
 
       - uses: actions/setup-go@v3
         with:
           go-version: 'stable'
-      - run: go run hello.go
 
       - run: go install github.com/mineiros-io/terramate/cmd/terramate@latest
           
