@@ -5,6 +5,10 @@ on:
 
 jobs:
   test-multi-account:
+    permissions:
+      pull-requests: write
+      id-token: write
+      contents: read
     uses: liamfit/workflow-library/.github/workflows/terraform-plan-and-apply.yml@main
     with:
       environment: dev
