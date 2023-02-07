@@ -27,9 +27,9 @@ jobs:
           role-session-name: ${{ github.run_id }}
           aws-region: ${{ inputs.AWS_REGION }}
 
-      - run: |
-          go install github.com/mineiros-io/terramate/cmd/terramate@latest
-          terramate list --changed
+      - run: go install github.com/mineiros-io/terramate/cmd/terramate@latest
+          
+      - run: terramate list --changed
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
