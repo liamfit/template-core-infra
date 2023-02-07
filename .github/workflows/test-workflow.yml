@@ -2,27 +2,12 @@ name: Test workflow
 
 on:
   workflow_dispatch:
-    inputs:
-      AWS_ROLE:
-        type: string
-        required: true
 
 jobs:
   test-multi-account:
-    permissions:
-      id-token: write
-      contents: read
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - run: aws ssm get-parameter --name terraform.tfvars.json --with-decryption --query 'Parameter.Value' --output text > environments/dev/terraform.tfvars.json
-
-      - name: Run terraform
-        uses: liamfit/workflow-library/.github/workflows/terraform-plan-and-apply.yml@main
-        with:
-          environment: dev
-          terraform-version: 1.3.6
-          working-directory: environments/dev
-        secrets: inherit
+    uses: liamfit/workflow-library/.github/workflows/terraform-plan-and-apply.yml@main
+    with:
+      environment: dev
+      terraform-version: 1.3.6
+      working-directory: environments/dev
+    secrets: inherit
