@@ -9,9 +9,6 @@ on:
       AWS_ROLE:
         type: string
         required: true
-      AWS_ROLE_DEV:
-        type: string
-        required: true
 
 jobs:
   test-multi-account:
@@ -20,6 +17,9 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -27,6 +27,15 @@ jobs:
           role-session-name: ${{ github.run_id }}
           aws-region: ${{ inputs.AWS_REGION }}
 
-      - run: aws sts get-caller-identity
+      - run: terramate list --changed
 
-      - run: aws sts assume-role --role-arn ${{ inputs.AWS_ROLE_DEV }} --role-session-name test
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.6"
+
+      - run: |
+          cd environments/dev
+          aws ssm get-parameter --name terraform.tfvars.json --with-decryption --query 'Parameter.Value' --output text > terraform.tfvars.json
+          terraform plan
+
